@@ -340,7 +340,7 @@ function checkBuilding($projectId, $token)
     //echo json_encode($response, JSON_PRETTY_PRINT) . " ,res<br>";
     $result = json_decode($response["body"], true);
     foreach ( $result['deployments'] as $deployment ) {
-        if ($deployment['state']!=="READY") $r++;
+        if ($deployment['state']!=="READY" && $deployment['state']!=="ERROR") $r++;
     }
     return $r;
     //if ($r===0) return true;
