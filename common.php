@@ -2760,8 +2760,10 @@ function render_list($path = '', $files = []) {
         replaceHtml($html, "Path", str_replace('\'', '\\\'', str_replace('%23', '#', str_replace('&', '&amp;', path_format($path1 . '/')))));
         replaceHtml($html, "constStr@Home", getconstStr('Home'));
 
-        replaceHtml($html, "customCss", getConfig('customCss'));
-        replaceHtml($html, "customScript", getConfig('customScript'));
+        if (!$_SERVER['is_guestup_path'] || $_SERVER['is_guestup_functionality_path']) {
+            replaceHtml($html, "customCss", getConfig('customCss'));
+            replaceHtml($html, "customScript", getConfig('customScript'));
+        }
 
         replaceHtml($html, "constStr@Login", getconstStr('Login'));
         replaceHtml($html, "constStr@Close", getconstStr('Close'));
