@@ -612,6 +612,8 @@
     var $readme = document.getElementById('readme');
     if ($readme) {
         $readme.innerHTML = marked(document.getElementById('readme-md').innerText);
+        document.getElementById('head-md').style.display='';
+        document.getElementById('readme-md').style.display='';
     }
 <!--ReadmemdEnd-->
 <!--ShowThumbnailsStart-->
