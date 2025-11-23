@@ -2492,10 +2492,6 @@ function render_list($path = '', $files = []) {
                 getStackHtml($html, "GuestUpload", 0);  // 显示上传界面
                 getStackHtml($html, "IsNotHidden", 0);
                 // 允许加载head.md/readme.md等内容
-                getStackHtml($html, "Headomf", 0);
-                getStackHtml($html, "Headmd", 0);
-                getStackHtml($html, "Readmemd", 0);
-                getStackHtml($html, "Footomf", 0);
             } else {
                 // 普通guest路径：只显示上传界面
                 getStackHtml($html, "IsFile", 1);
