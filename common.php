@@ -2485,21 +2485,21 @@ function render_list($path = '', $files = []) {
         replaceHtml($html, "constStr@Download", getconstStr('Download'));
 
         if ($_SERVER['is_guestup_path'] && !$_SERVER['admin']) {
-            if ($_SERVER['is_guestup_functionality_path']) {
-                // 功能性路径：显示上传界面和功能性文件内容
+            if (!$_SERVER['is_guestup_functionality_path']) {
+                // 普通 guest 路径：完全隐藏文件列表
                 getStackHtml($html, "IsFile", 1);
                 getStackHtml($html, "IsFolder", 1);
-                getStackHtml($html, "GuestUpload", 0);  // 显示上传界面
-                getStackHtml($html, "IsNotHidden", 0);
-                // 允许加载head.md/readme.md等内容
-            } else {
-                // 普通guest路径：只显示上传界面
-                getStackHtml($html, "IsFile", 1);
-                getStackHtml($html, "IsFolder", 1);
-                getStackHtml($html, "GuestUpload", 0);  // 显示上传界面
                 getStackHtml($html, "IsNotHidden", 1);
-                // 跳过所有文件列表和功能性内容
+            } else {
+                // 功能性 guest 路径：保留列表结构以便渲染 markdown
+                getStackHtml($html, "IsFile", 0);
+                getStackHtml($html, "IsFolder", 0);
+                getStackHtml($html, "IsNotHidden", 0);
+                
+                // 保留 Markdown 渲染相关的块（可能主题依赖这些）
+                // 确保 Headmd/Readmemd/Footomf 等块不被移除
             }
+            getStackHtml($html, "GuestUpload", 0);
         } else {
             getStackHtml($html, "GuestUpload", 1);
             getStackHtml($html, "IsNotHidden", 0);
@@ -2513,7 +2513,20 @@ function render_list($path = '', $files = []) {
                 $Driver_arr[] = $v1;
             }
         }
-        if ($_SERVER['is_guestup_path'] || ($_SERVER['admin'] && $files['type'] == 'folder' && $_SERVER['ishidden'] < 4)) {
+
+        // 在 guestup_path 下也保留必要的 JS（包括 Markdown 渲染）
+        $load_js = false;
+        if ($_SERVER['admin'] && $files['type'] == 'folder' && $_SERVER['ishidden'] < 4) {
+            $load_js = true;
+        } elseif ($_SERVER['is_guestup_functionality_path']) {
+            // 功能性 guest 路径：需要加载 JS 来渲染 Markdown
+            $load_js = true;
+        } elseif ($_SERVER['is_guestup_path']) {
+            // 普通 guest 路径：不需要 JS
+            $load_js = false;
+        }
+
+        if ($load_js) {
             $now_driver = baseclassofdrive();
             if ($now_driver) {
                 getStackHtml($html, "UploadJs", 0);
