@@ -23,7 +23,7 @@
     <meta name="description" content="<!--Description-->">
     <link rel="icon" href="<!--base_path-->favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="<!--base_path-->favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kizx/onemoe-theme/onemoe.min.css" type="text/css" />
+    <link rel="stylesheet" href="//gcore.jsdelivr.net/gh/kizx/onemoe-theme/onemoe.min.css" type="text/css" />
 	<!--BackgroundStart-->
     <style>body{background-repeat:no-repeat;background-size:cover;background-attachment:fixed;background-position-x:center;background-image:url("<!--BackgroundUrl-->")}</style>
     <!--BackgroundEnd-->
@@ -519,48 +519,43 @@
         document.getElementsByTagName('head')[0].appendChild(script);
     }
     function addVideos(videos) {
-        let host = 'https://s0.pstatp.com/cdn/expire-1-M';
-        let unloadedResourceCount = 4;
-        let callback = (() => {
-            return () => {
-                if (!--unloadedResourceCount) {
-                    createDplayers(videos);
-                }
-            };
-        })(unloadedResourceCount, videos);
-        loadResources(
-            'link',
-            host + '/dplayer/1.25.0/DPlayer.min.css',
-            callback
-        );
-        loadResources(
-            'script',
-            host + '/dplayer/1.25.0/DPlayer.min.js',
-            callback
-        );
-        loadResources(
-            'script',
-            host + '/hls.js/0.12.4/hls.light.min.js',
-            callback
-        );
-        loadResources(
-            'script',
-            host + '/flv.js/1.5.0/flv.min.js',
-            callback
-        );
-    }
-    function createDplayers(videos) {
-        for (i = 0; i < videos.length; i++) {
-            console.log(videos[i]);
-            new DPlayer({
-                container: document.getElementById('video-a' + i),
-                screenshot: true,
-                video: {
-                    url: videos[i]
-                }
-            });
-        }
-    }
+	    let host = 'https://unpkg.byted-static.com/xgplayer/2.32.6/dist/';
+	    let unloadedResourceCount = 2;
+	    let callback = (() => {
+	        return () => {
+	            if (!--unloadedResourceCount) {
+	                createPlayers(videos);
+	            }
+	        };
+	    })(unloadedResourceCount, videos);
+	    
+	    // 加载XGPlayer样式和脚本
+	    loadResources(
+	        'link',
+	        host + 'index.min.css',
+	        callback
+	    );
+	    loadResources(
+	        'script',
+	        host + 'index.min.js',
+	        callback
+	    );
+	}
+    // 创建XGPlayer实例的新函数
+	function createPlayers(videos) {
+	    for (let i = 0; i < videos.length; i++) {
+	        const player = new Player({
+	            id: 'video-a' + i,
+	            url: videos[i],
+	            autoplay: false,
+	            lang: 'zh-cn',
+	            fitsWindow: true,
+	            screenShot: true,
+	            closeVideoAds: true,
+	            whitelist: ['*']
+	        });
+	    }
+	}
     addVideos(['<!--FileEncodeUrl-->']);
 <!--IsvideoFileEnd-->
 <!--IspdfFileStart-->
@@ -1589,7 +1584,7 @@
     document.getElementById('password1').focus();
 <!--EncryptedEnd-->
 </script>
-<script src="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="https://gcore.jsdelivr.net/npm/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 <!--LoginStart--><script src="?jsFile=sha1.min.js"></script><!--LoginEnd-->
 <!--customScript-->
 </html>
