@@ -65,7 +65,6 @@ $EnvConfigs = [
     'domain_path'       => 0b0111,
     'downloadencrypt'   => 0b1110,
     'guestup_path'      => 0b0111,
-    'guestup_functionality_path' => 0b0111,
     'domainforproxy'    => 0b0111,
     'public_path'       => 0b0111,
     'fileConduitSize'   => 0b0110,
@@ -403,10 +402,7 @@ function main($path) {
 
     // list folder
     if ($_SERVER['is_guestup_path'] && !$_SERVER['admin']) {
-        // 即使是guestup_path，也需要获取文件列表以便加载功能性文件
-        $files = $drive->list_files($path1);
-        // 标记是否是功能性guest路径
-        $_SERVER['is_guestup_functionality_path'] = is_guestup_functionality_path($path);
+        $files = json_decode('{"type":"folder"}', true);
     } elseif ($_SERVER['ishidden'] == 4) {
         if (!getConfig('downloadencrypt', $_SERVER['disktag'])) {
             $files = json_decode('{"type":"file"}', true);
@@ -854,28 +850,6 @@ function is_guestup_path($path) {
         if (strtolower($a1) == strtolower($a2)) return 1;
     }
     return 0;
-}
-
-function is_guestup_functionality_path($path) {
-    // 首先判断是否为guestup_path
-    if (!is_guestup_path($path)) return false;
-    
-    // 获取配置的功能性路径列表
-    $functionality_paths = getConfig('guestup_functionality_path', $_SERVER['disktag']);
-    if (empty($functionality_paths)) return false;
-    
-    // 解析路径列表
-    $paths_arr = explode('|', $functionality_paths);
-    $current_path = path_format(path_format(urldecode($_SERVER['list_path'] . path_format($path))) . '/');
-    
-    // 判断当前路径是否在功能性路径列表中
-    foreach ($paths_arr as $func_path) {
-        $func_path_full = path_format(path_format($func_path) . '/');
-        if (strtolower($current_path) == strtolower($func_path_full)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function array_value_isnot_null($arr) {
@@ -2485,21 +2459,10 @@ function render_list($path = '', $files = []) {
         replaceHtml($html, "constStr@Download", getconstStr('Download'));
 
         if ($_SERVER['is_guestup_path'] && !$_SERVER['admin']) {
-            if (!$_SERVER['is_guestup_functionality_path']) {
-                // 普通 guest 路径：完全隐藏文件列表
-                getStackHtml($html, "IsFile", 1);
-                getStackHtml($html, "IsFolder", 1);
-                getStackHtml($html, "IsNotHidden", 1);
-            } else {
-                // 功能性 guest 路径：保留列表结构以便渲染 markdown
-                getStackHtml($html, "IsFile", 0);
-                getStackHtml($html, "IsFolder", 0);
-                getStackHtml($html, "IsNotHidden", 0);
-                
-                // 保留 Markdown 渲染相关的块（可能主题依赖这些）
-                // 确保 Headmd/Readmemd/Footomf 等块不被移除
-            }
+            getStackHtml($html, "IsFile", 1);
+            getStackHtml($html, "IsFolder", 1);
             getStackHtml($html, "GuestUpload", 0);
+            getStackHtml($html, "IsNotHidden", 1);
         } else {
             getStackHtml($html, "GuestUpload", 1);
             getStackHtml($html, "IsNotHidden", 0);
@@ -2603,16 +2566,6 @@ function render_list($path = '', $files = []) {
             $FolderList = $tmp[0];
             foreach ($files['list'] as $file) {
                 if ($file['type'] == 'folder') {
-                    // 如果是guestup_path且不是功能性路径，跳过所有文件
-                    if ($_SERVER['is_guestup_path'] && !$_SERVER['admin'] && 
-                        !$_SERVER['is_guestup_functionality_path']) {
-                        continue;
-                    }
-                    // 如果是功能性路径，跳过非功能性文件
-                    if ($_SERVER['is_guestup_functionality_path'] && !$_SERVER['admin'] && 
-                        isHideFile($file['name'])) {
-                        continue;
-                    }
                     if ($_SERVER['admin'] or !isHideFile($file['name'])) {
                         $filenum++;
                         //$FolderListStr = str_replace('<!--FileEncodeReplaceUrl-->', encode_str_replace(path_format($_SERVER['base_disk_path'] . '/' . str_replace('&amp;', '&', $path) . '/' . $file['name'])), $FolderList);
@@ -2634,16 +2587,6 @@ function render_list($path = '', $files = []) {
             $FolderList = $tmp[0];
             foreach ($files['list'] as $file) {
                 if ($file['type'] == 'file') {
-                    // 如果是guestup_path且不是功能性路径，跳过所有文件
-                    if ($_SERVER['is_guestup_path'] && !$_SERVER['admin'] && 
-                        !$_SERVER['is_guestup_functionality_path']) {
-                        continue;
-                    }
-                    // 如果是功能性路径，跳过非功能性文件
-                    if ($_SERVER['is_guestup_functionality_path'] && !$_SERVER['admin'] && 
-                        isHideFile($file['name'])) {
-                        continue;
-                    }
                     if ($_SERVER['admin'] or !isHideFile($file['name'])) {
                         $filenum++;
                         $ext = strtolower(substr($file['name'], strrpos($file['name'], '.') + 1));
