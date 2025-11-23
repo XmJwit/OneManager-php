@@ -2538,7 +2538,6 @@ function render_list($path = '', $files = []) {
             foreach ($Driver_arr as $driver) {
                 getStackHtml($html, $driver . "UploadJs", 1);
             }
-            replaceHtml($html, "constStr@Calculate", getconstStr('Calculate'));
         } else {
             getStackHtml($html, "UploadJs", 1);
             foreach ($Driver_arr as $driver) {
